@@ -1,29 +1,38 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "cicd-demo"
+        DOCKER_TAG = "${BUILD_NUMBER}"
+    }
+
     stages {
-        stage('Checkout') {
+
+        stage('Checkout Code') {
             steps {
-                echo 'Source code already checked out by Jenkins'
+                git branch: 'main',
+                    url: 'https://github.com/SHAIKABDULRASHEEQ/Jenkins.git',
+                    credentialsId: 'github-token'
             }
         }
 
-        stage('Build') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Build stage running'
+                sh '''
+                docker build -t $IMAGE_NAME:$DOCKER_TAG .
+                '''
             }
         }
 
-        stage('Test') {
+        stage('Deploy to Kubernetes') {
             steps {
-                echo 'Test stage running'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo 'Deploy stage running'
+                sh '''
+                sed -i "s|IMAGE_NAME|$IMAGE_NAME:$DOCKER_TAG|g" deployment.yaml
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                '''
             }
         }
     }
 }
+
