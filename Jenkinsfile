@@ -6,16 +6,7 @@ pipeline {
         DOCKER_TAG = "${BUILD_NUMBER}"
     }
 
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/YOUR_USERNAME/ci-cd-demo-app.git',
-                    credentialsId: 'github-token'
-            }
-        }
-
+}
         stage('Build Docker Image') {
             steps {
                 sh '''
